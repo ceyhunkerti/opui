@@ -1,0 +1,17 @@
+nav .container,
+#content {
+    max-width: unset !important;
+}
+
+nav .container {
+    padding: 0 100px 0 20px;
+}
+
+.container .row {
+    padding: 0px 10px;
+}
+
+#nav-drop .dropdown-menu {
+    right: 0;
+    min-width: 12rem;
+}

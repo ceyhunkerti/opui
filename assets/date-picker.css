@@ -1,0 +1,30 @@
+.navbar-date-picker .DateInput_input{
+    font-size: 16px;
+    line-height: 16px;
+}
+
+.navbar-date-picker .SingleDatePickerInput__withBorder
+{
+    border: 0;
+}
+
+.navbar-date-picker,
+.navbar-date-picker .DateInput_1, .DateInput_input {
+    background-color: #F8F9FA;
+}
+
+.navbar-date-picker .DateInput_input__focused {
+    border-bottom: 0px !important;
+}
+
+.navbar-date-picker .SingleDatePickerInput__showClearDate {
+    padding-right: 0;
+}
+
+.SingleDatePickerInput_clearDate__default:hover {
+    background-color: transparent;
+}
+
+.SingleDatePickerInput_clearDate__default:focus {
+    outline: unset;
+}
