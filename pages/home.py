@@ -71,13 +71,13 @@ def lp_table(system, date=max_date):
         data=data.to_dict('records'),
         style_cell={'textAlign': 'left',
                     'paddingLeft': '5px', 'paddingRight': '5px'},
-        css=[{'selector': 'tr:hover td', 'rule': 'background-color: #e3f2fd;'}],
+        css=[{'selector': 'tr:hover td', 'rule': 'background-color: #e3f2fd !important;'}],
         style_data_conditional=[
             {
                 'if': {
                     'filter_query': '{duration(sec)} > {average(sec)}'
                 },
-                'backgroundColor': '#ffebee',
+                'color': '#ef5350',
             },
         ],
     )

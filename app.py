@@ -40,7 +40,6 @@ nav_clicks = {
     ]
 )
 def nav_dropdwon(aedas, bedas, cedas, akepsas, bepsas, cepesas):
-
     if aedas and aedas > nav_clicks['aedas']: nav_clicks['aedas'] = aedas; return "AEDAS"
     if bedas and bedas > nav_clicks['bedas']: nav_clicks['bedas'] = bedas; return "BEDAS"
     if cedas and cedas > nav_clicks['cedas']: nav_clicks['cedas'] = cedas; return "CEDAS"
@@ -50,10 +49,8 @@ def nav_dropdwon(aedas, bedas, cedas, akepsas, bepsas, cepesas):
     return "BEDAS"
 
 
-current_system='BEDAS'
 @app.callback(Output('bar-chart-container', "children"), [Input("nav-dropdown", "label")])
 def system_click_chart(val):
-    current_system = val
     return bar_chart(val)
 
 
@@ -65,8 +62,13 @@ def system_click_table(system, date):
     d = dt.strptime(date[:10], '%Y-%m-%d')
     return lp_table(system, d)
 
-debug = os.getenv("OPUI_DEBUG") == 'true'
+debug = os.getenv("OPUI_DEBUG")
+if debug == None:
+    debug = True
+else:
+    debug = os.getenv("OPUI_DEBUG") == 'true'
+
 port = os.getenv("OPUI_PORT")
 
 if __name__ == "__main__":
-    app.run_server(debug=debug, port=(port or 8080))
+    app.run_server(debug=debug, port=(port or 8888))
