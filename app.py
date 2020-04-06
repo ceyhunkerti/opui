@@ -71,4 +71,4 @@ else:
 port = os.getenv("OPUI_PORT")
 
 if __name__ == "__main__":
-    app.run_server(debug=debug, port=(port or 8888))
+    app.run_server(debug=debug, port=(port or 8888), host='0.0.0.0')
