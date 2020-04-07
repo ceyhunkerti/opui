@@ -7,57 +7,69 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-from reader import df
+
+def __range(df):
+    days = np.flip(np.sort(df['day'].unique()))
+    return [days[min(len(days), 15)], dt.strptime(days[0], '%Y-%m-%d') + timedelta(days=1)]
 
 
-max_date = df['date'].max()
-min_date = df['date'].min()
-
-df = df[['date', 'system', 'plan', 'start', 'end', 'duration']]
-df['day'] = pd.DatetimeIndex(df.date).strftime("%Y-%m-%d")
-df.drop(['date'], axis=1, inplace=True)
-df = df[['day', 'system', 'plan', 'start', 'end', 'duration']]
-
-
-df['average'] = df.assign(duration=pd.to_numeric(
-    df['duration'])).groupby(['plan', 'system']).transform('mean').apply(np.ceil)
-df['average'] = df.groupby(['plan', 'system']).transform('mean').apply(np.ceil)
-
-
-days = np.flip(np.sort(df['day'].unique()))
-_range = [days[min(len(days), 15)], dt.strptime(
-    days[0], '%Y-%m-%d') + timedelta(days=1)]
-
-
-def bar_figure(system):
+def bar_figure(df, system):
     data = df.query(f"system == '{system}'")
     fig = px.bar(data, x='day', y='duration', width=1600, height=500,
                  color='plan',
                  barmode='group',
                  )
+
     fig.update_layout(
         xaxis_title="Date",
         yaxis_title="Duration(sec)",
         xaxis=dict(
             tickangle=90,
             tickmode='linear',
-            range=_range,
+            range=__range(df),
             rangeslider=dict(visible=True),
         ),
+        updatemenus=[
+            dict(
+                type = "buttons",
+                direction = "left",
+                buttons=list([
+                    dict(
+                        args=[{'type': 'bar'}],
+                        label="Bar",
+                        method="update"
+                    ),
+                    dict(
+                        args=[{'type': 'line'}],
+                        label="Line",
+                        method="update",
+                    )
+                ]),
+                pad={"r": 10, "t": 10},
+                showactive=True,
+                x=0.0,
+                xanchor="left",
+                y=1.2,
+                yanchor="top"
+            ),
+        ]
     )
     return fig
 
 
-def bar_chart(system):
+def bar_chart(df, system):
     return dcc.Graph(
         id='bar-chart',
-        figure=bar_figure(system)
+        figure=bar_figure(df, system)
     )
 
 
-def lp_table(system, date=max_date):
-    d = date.strftime("%Y-%m-%d")
-    data = df.query(f"system == '{system}' and day == '{d}'")
+def lp_table(df, system, date=None):
+    date = date or df['date'].max()
+    day = date.strftime("%Y-%m-%d")
+    data = df.query(f"system == '{system}' and day == '{day}'")
+
+    data = data[['system', 'plan', 'start', 'end', 'duration', 'average']]
 
     data = data.sort_values(by=['duration'], ascending=False).rename(
         columns={'duration': 'duration(sec)', 'average': 'average(sec)'})
@@ -84,24 +96,25 @@ def lp_table(system, date=max_date):
     return table
 
 
-date_picker = dcc.DatePickerSingle(
-    min_date_allowed=min_date,
-    max_date_allowed=max_date,
-    display_format='YYYY.MM.DD',
-    date=max_date,
-    id='lp-date-picker'
-)
+def date_picker(df):
+    return dcc.DatePickerSingle(
+        min_date_allowed=df['date'].min(),
+        max_date_allowed=df['date'].max(),
+        display_format='YYYY.MM.DD',
+        date=df['date'].max(),
+        id='lp-date-picker'
+    )
 
-
-home = html.Div(id="home", style={}, children=[
-    dbc.Row([
-        bar_chart('BEDAS')
-    ], justify="start", id='bar-chart-container'),
-    dbc.Row([date_picker], className='ml-4'),
-    html.Div([
-        lp_table('BEDAS')
-    ], style={
-        'padding': '40px',
-        'padding-top': '20px'
-    }, id='lp-table-container')
-])
+def home(df):
+    return html.Div(id="home", style={}, children=[
+        dbc.Row([
+            bar_chart(df, 'BEDAS')
+        ], justify="start", id='bar-chart-container'),
+        dbc.Row([date_picker(df)], className='ml-4'),
+        html.Div([
+            lp_table(df, 'BEDAS')
+        ], style={
+            'padding': '40px',
+            'padding-top': '20px'
+        }, id='lp-table-container')
+    ])

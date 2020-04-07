@@ -9,6 +9,7 @@ from components.navbar import navbar
 from pages.home import home, bar_chart
 from pages.file_upload import file_upload
 from pages.home import bar_chart, lp_table
+from reader import read
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 # app = dash.Dash(external_stylesheets=[dbc.themes.JOURNAL])
@@ -17,12 +18,19 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config['suppress_callback_exceptions'] = True
 app.title = 'DWH'
 
-app.layout = html.Div([
-    navbar,
-    dbc.Container(id="content", style={"padding": "20px"}, children=[
-        home
+df = read()
+
+def set_layout():
+    global df
+    df = read()
+    return html.Div([
+        navbar,
+        dbc.Container(id="content", style={"padding": "20px"}, children=[
+            home(df)
+        ])
     ])
-])
+
+app.layout = set_layout
 
 nav_clicks = {
     'aedas': 0, 'bedas': 0, 'cedas': 0,
@@ -51,7 +59,7 @@ def nav_dropdwon(aedas, bedas, cedas, akepsas, bepsas, cepesas):
 
 @app.callback(Output('bar-chart-container', "children"), [Input("nav-dropdown", "label")])
 def system_click_chart(val):
-    return bar_chart(val)
+    return bar_chart(df, val)
 
 
 @app.callback(Output('lp-table-container', "children"), [
@@ -60,7 +68,7 @@ def system_click_chart(val):
 ])
 def system_click_table(system, date):
     d = dt.strptime(date[:10], '%Y-%m-%d')
-    return lp_table(system, d)
+    return lp_table(df, system, d)
 
 debug = os.getenv("OPUI_DEBUG")
 if debug == None:
