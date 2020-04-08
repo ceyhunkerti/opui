@@ -26,7 +26,7 @@ def set_layout():
     global df
     df = read()
     return html.Div([
-        dcc.Location(id='url', refresh=False),
+        dcc.Location(id='url', refresh=False, pathname='/bedas'),
         navbar(),
         dbc.Container(id="content", style={"padding": "20px"}, children=[
             home(df)
