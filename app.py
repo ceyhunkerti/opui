@@ -26,7 +26,7 @@ def set_layout():
     global df
     df = read()
     return html.Div([
-        dcc.Location(id='url', refresh=False, pathname='/bedas'),
+        dcc.Location(id='url', refresh=False, href='/bedas'),
         navbar(),
         dbc.Container(id="content", style={"padding": "20px"}, children=[
             home(df)
@@ -42,14 +42,23 @@ app.layout = set_layout
     [Input('url', 'pathname')]
 )
 def nav_dropdwon(path_name):
-    return menu[path_name[1:]]
+    if path_name == '/':
+        system = 'bedas'
+    else:
+        system = path_name[1:]
+    return menu[system]
 
 
 @app.callback(Output('bar-chart-container', "children"),
     [Input('url', 'pathname')]
 )
 def system_click_chart(path_name):
-    return bar_chart(df, path_name[1:].upper())
+    if path_name == '/':
+        system = 'BEDAS'
+    else:
+        system = path_name[1:].upper()
+
+    return bar_chart(df, system)
 
 
 @app.callback(Output('lp-table-container', "children"), [
@@ -57,8 +66,13 @@ def system_click_chart(path_name):
     Input('lp-date-picker', 'date')
 ])
 def system_click_table(path_name, date):
+    if path_name == '/':
+        system = 'BEDAS'
+    else:
+        system = path_name[1:].upper()
+
     d = dt.strptime(date[:10], '%Y-%m-%d')
-    return lp_table(df, path_name[1:].upper(), d)
+    return lp_table(df, system, d)
 
 debug = os.getenv("OPUI_DEBUG")
 if debug == None:
